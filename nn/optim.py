@@ -1,14 +1,14 @@
-from typing import Callable, Optional, Tuple, Any
+from typing import Callable, Optional, Tuple, Any, NamedTuple
 from jax import tree_map
 import jax.numpy as jnp
 PyTree = Any
 
-class Optimizer:
+class Optimizer(NamedTuple):
     init: Callable[[PyTree], tuple]
 
     update: Callable[[PyTree, tuple, Optional[PyTree]], Tuple[PyTree, tuple]]
 
-def sgr(lr):
+def sgd(lr):
     def init(params):
         return tuple()
     
@@ -49,4 +49,6 @@ def adam(lr, beta1=0.9, beta2=0.999, eps=1e-8):
             return -lr / (jnp.sqrt(m2) + eps) * m
         updates = tree_map(update_param, param_momentum, param_2nd_momentum)
         return updates, (step, param_momentum, param_2nd_momentum)
+    
+    return Optimizer(init, update)
         
