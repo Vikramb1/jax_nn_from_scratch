@@ -20,7 +20,7 @@ def sgd(lr):
 
 def sgd_momentum(lr, momentum=0.0):
     def init(params):
-        param_momentum = tree_map(jnp.zeroes_like, params)
+        param_momentum = tree_map(jnp.zeros_like, params)
         return param_momentum
     
     def update(updates, state, params=None):
@@ -33,8 +33,8 @@ def sgd_momentum(lr, momentum=0.0):
 def adam(lr, beta1=0.9, beta2=0.999, eps=1e-8):
     def init(params):
         step = 0.
-        param_momentum = tree_map(jnp.zeroes_like, params)
-        param_2nd_momentum = tree_map(jnp.zeroes_like, params)
+        param_momentum = tree_map(jnp.zeros_like, params)
+        param_2nd_momentum = tree_map(jnp.zeros_like, params)
         return (step, param_momentum, param_2nd_momentum)
 
     def update(updates, state, params=None):

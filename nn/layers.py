@@ -17,25 +17,26 @@ def dense_init(
     w_shape = (out_dim, in_dim)
     b_shape = (out_dim,)
     return {'W': w_init(key, w_shape, dtype), 'B': b_init(key, b_shape, dtype)}
-    
 
 def dense_apply(
     params: Dict[str, jax.Array],
     x: jax.Array,
+    **kwargs
 ) -> jax.Array:
     
     y = jnp.matmul(x, jnp.transpose(params['W'])) + params['B']
     return y
 
 def dropout_apply(
-        x: jax.Array,
-        *,
-        rate: float,
-        key,
-        training: bool = True
+    params: Optional[Dict[str, jax.Array]],  # Add this (can be None)
+    x: jax.Array,
+    *,
+    rate: float = 0.0,
+    key: Optional[jax.Array] = None,
+    training: bool = True
 ) -> jax.Array:
-    zeroed_matrix = jnp.choice(key, [0, 1], shape=x.shape, p=[rate, 1-rate])
-    if training:
-        x = x * zeroed_matrix
-    return x
+    if not training:
+        return x
+    zeroed_matrix = random.bernoulli(key, 1-rate, shape=x.shape)
+    return x * zeroed_matrix / (1-rate)
 
