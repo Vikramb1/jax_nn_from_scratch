@@ -3,7 +3,6 @@ import jax
 import jax.numpy as jnp
 from jax import random
 from nn.layers import dense_apply
-from nn.utils import split_key
 
 PyTree = Any
 
@@ -21,7 +20,7 @@ def sequential_init(key: jax.Array,
                     specs: Sequence[LayerSpec]
                     ) -> Tuple[List[Dict[str, jax.Array]], 
                                List[Optional[PyTree]]]:
-    key_arr = split_key(key, len(specs))
+    key_arr = jax.random.split(key, len(specs))
     params_list = []
     states_list = []
 
@@ -50,14 +49,14 @@ def sequential_apply(
     curr_state = x
     new_states = []
 
-    if rng:
+    if rng is not None:
         rng_keys = random.split(rng, len(apply_fns))
     else:
         rng_keys = [None] * len(apply_fns)
 
     for i, (params, apply_fn, rng_key) in enumerate(zip(params_list, apply_fns, rng_keys)):
         kwargs = {'training': training}
-        if rng_key:
+        if rng_key is not None:
             kwargs['key'] = rng_key
         if runtime_overrides and i < len(runtime_overrides):
             kwargs.update(runtime_overrides[i])
